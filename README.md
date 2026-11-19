@@ -42,3 +42,11 @@ El proyecto modela dos fichas de ejemplo, una para el portal y otra para su ayud
 La configuración de la raíz puede planificarse con los valores predeterminados o con `escenario-integracion.tfvars`, sin duplicar la definición de las fichas. GitHub Actions comprueba el formato de los archivos OpenTofu, valida la configuración y genera ambos planes; además, publica un resumen y un artefacto con los resultados.
 
 Es un laboratorio: `terraform_data` y las fichas son datos ficticios. El workflow no ejecuta `apply` ni crea servidores, redes o recursos cloud facturables.
+
+## Política del laboratorio
+
+La política acepta únicamente un plan con dos cambios de creación: las fichas `portal` y `ayuda`, ambas de tipo `terraform_data`. Sus nombres deben cumplir el prefijo `portal-`, la ficha de ayuda debe llamarse `portal-ayuda`, y las dos deben compartir un entorno conocido y no sensible entre `desarrollo`, `pruebas` e `integracion`.
+
+La validación de variables comprueba si cada entrada individual respeta sus reglas, como el prefijo del nombre o la lista de entornos admitidos. La política revisa el plan ya generado y responde otra pregunta: si el conjunto de cambios previsto contiene exactamente las dos fichas, con las acciones y la relación entre sus valores que permite este ejercicio.
+
+Los resultados se consultan en los pasos y registros de GitHub Actions, en el resumen de la ejecución y en el artefacto `evidencia.txt`. Una política aprobada no aplica cambios: solo inspecciona el JSON de un plan. El recurso `terraform_data` representa datos ficticios, no servicios cloud. Por eso el ejemplo no despliega infraestructura ni demuestra controles suficientes para gobernar producción, como permisos, gestión de secretos, costes, revisión de estado o detección de drift.
