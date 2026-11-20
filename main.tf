@@ -8,10 +8,6 @@ locals {
       nombre  = "portal-ayuda"
       entorno = var.entorno
     }
-    informes = {
-      nombre  = "portal-informes"
-      entorno = var.entorno
-    }
   }
 }
 
