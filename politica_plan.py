@@ -6,7 +6,13 @@ EXPECTED_ADDRESSES = {
     "module.fichas[\"portal\"].terraform_data.ficha",
     "module.fichas[\"ayuda\"].terraform_data.ficha",
 }
-ALLOWED_ENVIRONMENTS = {"desarrollo", "pruebas", "integracion"}
+EXPECTED_PROJECT = "nexo-portal"
+EXPECTED_TEAMS = {
+    "desarrollo": "equipo-desarrollo",
+    "pruebas": "equipo-pruebas",
+    "integracion": "equipo-integracion",
+}
+ALLOWED_ENVIRONMENTS = set(EXPECTED_TEAMS)
 
 
 def reject(reason):
@@ -90,7 +96,7 @@ def main():
         after_unknown = change.get("after_unknown")
         after_sensitive = change.get("after_sensitive")
         values = {}
-        for field in ("nombre", "entorno"):
+        for field in ("nombre", "proyecto", "entorno", "equipo"):
             if is_marked(after_unknown, field):
                 return reject(f"{address}: {field} está marcado como desconocido")
             if is_marked(after_sensitive, field):
@@ -116,6 +122,17 @@ def main():
     for label, values in (("portal", portal), ("ayuda", help_ficha)):
         if values["entorno"] not in ALLOWED_ENVIRONMENTS:
             return reject(f"entorno no permitido para {label}: {values['entorno']!r}")
+        if values["proyecto"] != EXPECTED_PROJECT:
+            return reject(
+                f"proyecto incorrecto para {label}: se esperaba "
+                f"{EXPECTED_PROJECT!r}, se recibió {values['proyecto']!r}"
+            )
+        expected_team = EXPECTED_TEAMS[values["entorno"]]
+        if values["equipo"] != expected_team:
+            return reject(
+                f"equipo incorrecto para {label} en {values['entorno']!r}: "
+                f"se esperaba {expected_team!r}, se recibió {values['equipo']!r}"
+            )
     if portal["entorno"] != help_ficha["entorno"]:
         return reject(
             "los entornos no coinciden: "
@@ -123,7 +140,7 @@ def main():
         )
 
     print(
-        "POLÍTICA APROBADA: dos fichas ficticias, mismo entorno y sin operaciones reales"
+        "POLÍTICA APROBADA: dos fichas con proyecto, entorno y equipo válidos"
     )
     return 0
 

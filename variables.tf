@@ -19,3 +19,9 @@ variable "nombre_aplicacion" {
     error_message = "El nombre debe comenzar por portal-."
   }
 }
+
+variable "equipo_responsable" {
+  description = "Equipo ficticio responsable del escenario"
+  type        = string
+  default     = "equipo-pruebas"
+}

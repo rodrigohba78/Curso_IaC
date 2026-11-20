@@ -8,6 +8,11 @@ variable "nombre" {
   }
 }
 
+variable "proyecto" {
+  description = "Proyecto ficticio al que pertenece la ficha"
+  type        = string
+}
+
 variable "entorno" {
   description = "Entorno ficticio de la ficha"
   type        = string
@@ -16,4 +21,9 @@ variable "entorno" {
     condition     = contains(["desarrollo", "pruebas", "integracion"], var.entorno)
     error_message = "Usa desarrollo, pruebas o integracion."
   }
+}
+
+variable "equipo" {
+  description = "Equipo ficticio responsable de la ficha"
+  type        = string
 }
