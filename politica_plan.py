@@ -6,7 +6,15 @@ EXPECTED_ADDRESSES = {
     "module.fichas[\"portal\"].terraform_data.ficha",
     "module.fichas[\"ayuda\"].terraform_data.ficha",
 }
-ALLOWED_ENVIRONMENTS = {"desarrollo", "pruebas", "integracion"}
+EXPECTED_PROJECT = "nexo-portal"
+RESPONSIBLE_BY_ENVIRONMENT = {
+    "desarrollo": "equipo-lab",
+    "pruebas": "equipo-lab",
+    "integracion": "equipo-integracion",
+}
+ALLOWED_ENVIRONMENTS = set(RESPONSIBLE_BY_ENVIRONMENT)
+EXPECTED_INPUT_KEYS = {"nombre", "entorno", "etiquetas"}
+EXPECTED_LABEL_KEYS = {"proyecto", "entorno", "responsable"}
 
 
 def reject(reason):
@@ -14,16 +22,25 @@ def reject(reason):
     return 1
 
 
+def contains_true(value):
+    if value is True:
+        return True
+    if isinstance(value, dict):
+        return any(contains_true(item) for item in value.values())
+    if isinstance(value, list):
+        return any(contains_true(item) for item in value)
+    return False
+
+
 def is_marked(flags, field):
     if flags is True:
         return True
     if not isinstance(flags, dict):
         return False
-
     input_flags = flags.get("input")
-    if input_flags is True:
-        return True
-    return isinstance(input_flags, dict) and input_flags.get(field) is True
+    if isinstance(input_flags, dict):
+        return contains_true(input_flags.get(field))
+    return contains_true(input_flags)
 
 
 def main():
@@ -86,19 +103,43 @@ def main():
         input_values = after.get("input")
         if not isinstance(input_values, dict):
             return reject(f"{address}: falta change.after.input")
+        if set(input_values) != EXPECTED_INPUT_KEYS:
+            return reject(
+                f"{address}: change.after.input debe contener exactamente "
+                "nombre, entorno y etiquetas"
+            )
+        labels = input_values.get("etiquetas")
+        if not isinstance(labels, dict):
+            return reject(f"{address}: etiquetas debe ser un mapa")
+        if set(labels) != EXPECTED_LABEL_KEYS:
+            return reject(
+                f"{address}: etiquetas debe contener exactamente "
+                "proyecto, entorno y responsable"
+            )
 
         after_unknown = change.get("after_unknown")
         after_sensitive = change.get("after_sensitive")
-        values = {}
-        for field in ("nombre", "entorno"):
+        for field in ("nombre", "entorno", "etiquetas"):
             if is_marked(after_unknown, field):
                 return reject(f"{address}: {field} está marcado como desconocido")
             if is_marked(after_sensitive, field):
                 return reject(f"{address}: {field} está marcado como sensible")
+
+        values = {}
+        for field in ("nombre", "entorno"):
             value = input_values.get(field)
             if not isinstance(value, str) or not value:
                 return reject(f"{address}: {field} falta o no es un texto conocido")
             values[field] = value
+        label_values = {}
+        for field in ("proyecto", "entorno", "responsable"):
+            value = labels.get(field)
+            if not isinstance(value, str) or not value:
+                return reject(
+                    f"{address}: etiquetas.{field} falta o no es un texto conocido"
+                )
+            label_values[field] = value
+        values["etiquetas"] = label_values
         values_by_address[address] = values
 
     portal_address = "module.fichas[\"portal\"].terraform_data.ficha"
@@ -116,6 +157,22 @@ def main():
     for label, values in (("portal", portal), ("ayuda", help_ficha)):
         if values["entorno"] not in ALLOWED_ENVIRONMENTS:
             return reject(f"entorno no permitido para {label}: {values['entorno']!r}")
+        labels = values["etiquetas"]
+        if labels["proyecto"] != EXPECTED_PROJECT:
+            return reject(
+                f"proyecto incorrecto para {label}: se esperaba "
+                f"{EXPECTED_PROJECT!r}, se recibió {labels['proyecto']!r}"
+            )
+        if labels["entorno"] != values["entorno"]:
+            return reject(
+                f"etiquetas.entorno no coincide para {label}: "
+                f"{labels['entorno']!r} != {values['entorno']!r}"
+            )
+        expected_responsible = RESPONSIBLE_BY_ENVIRONMENT.get(values["entorno"])
+        if expected_responsible is None:
+            return reject(f"no hay responsable aprobado para {values['entorno']!r}")
+        if labels["responsable"] != expected_responsible:
+            return reject(f"responsable no aprobado para {values['entorno']}")
     if portal["entorno"] != help_ficha["entorno"]:
         return reject(
             "los entornos no coinciden: "
@@ -123,7 +180,7 @@ def main():
         )
 
     print(
-        "POLÍTICA APROBADA: dos fichas ficticias, mismo entorno y sin operaciones reales"
+        "POLÍTICA APROBADA: dos fichas con etiquetas y responsable ficticios correctos"
     )
     return 0
 
