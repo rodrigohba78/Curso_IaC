@@ -37,7 +37,7 @@ El workflow calcula un plan, **no ejecuta `tofu apply`** y no crea una web ni in
 
 ## Arquitectura ficticia
 
-El proyecto modela dos fichas de ejemplo, una para el portal y otra para su ayuda. Ambas se construyen con el módulo local `modulo_ficha`, que recibe un nombre, proyecto, entorno y equipo responsable. Los nombres y entornos se validan en OpenTofu; la política comprueba además la asignación del proyecto y del equipo.
+El proyecto modela dos fichas de ejemplo, una para el portal y otra para su ayuda. Ambas se construyen con el módulo local `modulo_ficha`, que recibe nombre, entorno y responsable. Las etiquetas didácticas `proyecto`, `entorno` y `responsable` se incluyen en el `input` de `terraform_data`.
 
 La configuración de la raíz puede planificarse con los valores predeterminados o con `escenario-integracion.tfvars`, sin duplicar la definición de las fichas. GitHub Actions comprueba el formato de los archivos OpenTofu, valida la configuración y genera ambos planes; además, publica un resumen y un artefacto con los resultados.
 
@@ -45,10 +45,10 @@ Es un laboratorio: `terraform_data` y las fichas son datos ficticios. El workflo
 
 ## Catálogo de fichas
 
-En `main.tf`, el mapa `local.catalogo` contiene las claves `portal` y `ayuda`, asociadas a `portal-demo` (por defecto) y `portal-ayuda`. `for_each` recorre esas claves y crea una instancia del módulo reutilizable `fichas` por cada entrada; ambas reciben el proyecto `nexo-portal`, el entorno seleccionado y el equipo responsable del escenario.
+En `main.tf`, el mapa `local.catalogo` contiene las claves `portal` y `ayuda`, asociadas a `portal-demo` (por defecto) y `portal-ayuda`. `for_each` recorre esas claves y crea una instancia del módulo reutilizable `fichas` por cada entrada; ambas reciben el entorno y el responsable del escenario.
 
 La salida `resumen`, definida en `outputs.tf`, usa una expresión `for` para mostrar el nombre y las etiquetas didácticas previstas de cada instancia, conservando sus claves. No significa que las fichas se hayan desplegado.
 
-El escenario predeterminado usa `equipo-pruebas`; el archivo de integración asigna `equipo-integracion`. La política exige que cada ficha tenga el proyecto esperado y que su equipo corresponda al entorno. Por eso puede rechazar una asignación incorrecta aunque `tofu validate` y `tofu plan` terminen correctamente. El workflow envía los dos planes guardados a `politica_plan.py`; también se conserva la regla de exactamente dos direcciones, `portal` y `ayuda`.
+El escenario predeterminado usa `equipo-lab`; el de integración usa `equipo-integracion`. La política exige que el responsable corresponda al entorno y que las etiquetas coincidan con el proyecto y el entorno de cada ficha. En la prueba controlada, `equipo-lab` en integración pasó `tofu validate` y el plan, pero la política lo rechazó con `POLÍTICA RECHAZADA: responsable no aprobado para integracion`. Al restaurar `equipo-integracion`, los dos escenarios y sus políticas volvieron a quedar verdes. El workflow envía los dos planes guardados a `politica_plan.py` y conserva la regla de exactamente dos direcciones, `portal` y `ayuda`.
 
 Este laboratorio no hace `apply`: no despliega infraestructura ni ofrece un servicio real de autoservicio. Solo valida la configuración y muestra planes ficticios.
