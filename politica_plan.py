@@ -3,8 +3,8 @@ import sys
 
 
 EXPECTED_ADDRESSES = {
-    "module.portal.terraform_data.ficha",
-    "module.ayuda.terraform_data.ficha",
+    "module.fichas[\"portal\"].terraform_data.ficha",
+    "module.fichas[\"ayuda\"].terraform_data.ficha",
 }
 ALLOWED_ENVIRONMENTS = {"desarrollo", "pruebas", "integracion"}
 
@@ -101,8 +101,8 @@ def main():
             values[field] = value
         values_by_address[address] = values
 
-    portal_address = "module.portal.terraform_data.ficha"
-    help_address = "module.ayuda.terraform_data.ficha"
+    portal_address = "module.fichas[\"portal\"].terraform_data.ficha"
+    help_address = "module.fichas[\"ayuda\"].terraform_data.ficha"
     portal = values_by_address[portal_address]
     help_ficha = values_by_address[help_address]
 

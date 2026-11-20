@@ -43,10 +43,12 @@ La configuración de la raíz puede planificarse con los valores predeterminados
 
 Es un laboratorio: `terraform_data` y las fichas son datos ficticios. El workflow no ejecuta `apply` ni crea servidores, redes o recursos cloud facturables.
 
-## Política del laboratorio
+## Catálogo de fichas
 
-La política acepta únicamente un plan con dos cambios de creación: las fichas `portal` y `ayuda`, ambas de tipo `terraform_data`. Sus nombres deben cumplir el prefijo `portal-`, la ficha de ayuda debe llamarse `portal-ayuda`, y las dos deben compartir un entorno conocido y no sensible entre `desarrollo`, `pruebas` e `integracion`.
+En `main.tf`, el mapa `local.catalogo` contiene las claves `portal` y `ayuda`, asociadas a `portal-demo` (por defecto) y `portal-ayuda`. `for_each` recorre esas claves y crea una instancia del módulo reutilizable `fichas` por cada entrada; ambas reciben el entorno seleccionado.
 
-La validación de variables comprueba si cada entrada individual respeta sus reglas, como el prefijo del nombre o la lista de entornos admitidos. La política revisa el plan ya generado y responde otra pregunta: si el conjunto de cambios previsto contiene exactamente las dos fichas, con las acciones y la relación entre sus valores que permite este ejercicio.
+La salida `resumen`, definida en `outputs.tf`, usa una expresión `for` para mostrar el resumen previsto de cada instancia y conservar sus claves. No significa que las fichas se hayan desplegado.
 
-Los resultados se consultan en los pasos y registros de GitHub Actions, en el resumen de la ejecución y en el artefacto `evidencia.txt`. Una política aprobada no aplica cambios: solo inspecciona el JSON de un plan. El recurso `terraform_data` representa datos ficticios, no servicios cloud. Por eso el ejemplo no despliega infraestructura ni demuestra controles suficientes para gobernar producción, como permisos, gestión de secretos, costes, revisión de estado o detección de drift.
+La política didáctica permite exactamente las direcciones de `portal` y `ayuda`, por lo que rechazaría un tercer cambio como `informes`: excede el número permitido y no forma parte del catálogo aprobado. Sin embargo, el workflow actual no ejecuta `politica_plan.py`; la ejecución de Actions de la prueba con tres elementos quedó verde y mostró tres altas. Por tanto, ese rechazo describe lo que haría la política si se aplicase al plan, no lo que ocurrió en aquella ejecución.
+
+Este laboratorio no hace `apply`: no despliega infraestructura ni ofrece un servicio real de autoservicio. Solo valida la configuración y muestra planes ficticios.
