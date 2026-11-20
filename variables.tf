@@ -20,8 +20,8 @@ variable "nombre_aplicacion" {
   }
 }
 
-variable "equipo_responsable" {
-  description = "Equipo ficticio responsable del escenario"
+variable "responsable" {
+  description = "Equipo ficticio responsable de las fichas"
   type        = string
-  default     = "equipo-pruebas"
+  default     = "equipo-lab"
 }

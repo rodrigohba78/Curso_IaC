@@ -8,11 +8,6 @@ variable "nombre" {
   }
 }
 
-variable "proyecto" {
-  description = "Proyecto ficticio al que pertenece la ficha"
-  type        = string
-}
-
 variable "entorno" {
   description = "Entorno ficticio de la ficha"
   type        = string
@@ -23,7 +18,7 @@ variable "entorno" {
   }
 }
 
-variable "equipo" {
+variable "responsable" {
   description = "Equipo ficticio responsable de la ficha"
   type        = string
 }
