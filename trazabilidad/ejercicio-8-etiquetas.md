@@ -13,7 +13,7 @@ Los siguientes commits y ejecuciones documentan la primera versión del ejercici
 
 ## Corrección local conforme a la guía
 
-En la rama `taller-final-ejercicio-8`, sobre el punto de partida `290fbf2`, se alinearon los seis archivos técnicos con la guía y se publicaron en los commits `c640297` y `b4be799`. El README y esta trazabilidad continúan como cambios locales para el cierre del ejercicio.
+En la rama `taller-final-ejercicio-8`, sobre el punto de partida `290fbf2`, se alinearon los seis archivos técnicos con la guía y se publicaron en `c640297` y `b4be799`. El README y esta trazabilidad se publicaron en `cd87fc3`.
 
 - La variable raíz se llama `responsable` y su valor predeterminado es `equipo-lab`. El valor aprobado para integración es `equipo-integracion`; en la prueba de la sección 9 se cambia temporalmente a `equipo-lab`.
 - La raíz pasa `responsable` al módulo. El módulo declara esa entrada y estructura `terraform_data.input` con `nombre`, `entorno` y el mapa `etiquetas` (`proyecto`, `entorno`, `responsable`).
@@ -77,8 +77,9 @@ En la rama `taller-final-ejercicio-8`, sobre el punto de partida `290fbf2`, se a
 
 ### Sección 10.2 — Documentar el taller
 
-- El README describe el mapa y las etiquetas, la regla de responsable por entorno, el rechazo controlado de `equipo-lab` en integración y que el laboratorio no despliega infraestructura.
-- Se comprobarán el formato y el workflow al confirmar el README y esta trazabilidad; la ejecución queda pendiente.
+- El README describe las dos claves del catálogo, las etiquetas ficticias, la regla de responsable por entorno, el rechazo controlado de `equipo-lab` en integración y que el laboratorio no despliega infraestructura.
+- El commit `cd87fc3` publicó el README y esta trazabilidad. [Run 54](https://github.com/rodrigohba78/Curso_IaC/actions/runs/44734355685) comprobó ese commit y quedó verde en formato, validación, los dos planes y las dos políticas.
+- El README también deja claro que no se ejecuta `apply`.
 
 ## Comprobaciones locales de esta corrección
 
